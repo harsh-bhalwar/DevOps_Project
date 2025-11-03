@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   parameters {
-    booleanParam(name: 'PUSH_TO_DOCKERHUB', defaultValue: false, description: 'Push built image to DockerHub?')
+    booleanParam(name: 'PUSH_TO_DOCKERHUB', defaultValue: true, description: 'Push built image to DockerHub?')
     string(name: 'DOCKERHUB_REPO', defaultValue: 'bhawarharsh/devops_project', description: 'DockerHub repo name (user/repo)')
   }
 
@@ -49,17 +49,33 @@ pipeline {
     }
 
     stage('Push to DockerHub') {
-      when {
-        expression { return params.PUSH_TO_DOCKERHUB == true }
-      }
-      steps {
-        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
-          sh 'echo $DOCKERHUB_PASS | docker login -u "$DOCKERHUB_USER" --password-stdin'
-          sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
-          sh 'docker logout'
-        }
-      }
+  when {
+    expression { return params.PUSH_TO_DOCKERHUB == true }
+  }
+  steps {
+    withCredentials([usernamePassword(credentialsId: 'docker-pat', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
+      sh '''
+        export PATH=$PATH:/usr/local/bin
+
+        echo "🛠️ Checking Docker installation..."
+        docker -v || { echo "❌ Docker not found! Check PATH or permissions."; exit 1; }
+
+        echo "🔐 Logging into DockerHub..."
+        echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
+
+        echo "🏗️ Tagging image before push..."
+        docker tag bhawarharsh/devops_project:jenkins-4 ${IMAGE_NAME}:${IMAGE_TAG}
+
+        echo "🚀 Pushing image to DockerHub..."
+        docker push ${IMAGE_NAME}:${IMAGE_TAG}
+
+        echo "🔒 Logging out of DockerHub..."
+        docker logout
+      '''
     }
+  }
+}
+
 
     stage('Deploy (local)') {
     steps {
