@@ -1,0 +1,25 @@
+{
+  "name": "devops-project",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "jest --ci --reporters=default --reporters=jest-junit"
+  },
+  "jest-junit": {
+    "outputName": "junit.xml",
+    "outputDirectory": "test-results"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-junit": "^16.0.0",
+    "supertest": "^7.1.4"
+  }
+}
