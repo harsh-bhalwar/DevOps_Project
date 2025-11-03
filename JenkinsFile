@@ -38,9 +38,11 @@ pipeline {
     }
 
     stage('Build Docker Image') {
-      steps {
-        sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
-      }
+      sh '''
+            export PATH=$PATH:/usr/local/bin
+            docker -v
+            docker build -t bhawarharsh/devops_project:jenkins-4 .
+        '''
     }
 
     stage('Push to DockerHub') {
