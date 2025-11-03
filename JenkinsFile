@@ -38,11 +38,13 @@ pipeline {
     }
 
     stage('Build Docker Image') {
-      sh '''
-            export PATH=$PATH:/usr/local/bin
-            docker -v
-            docker build -t bhawarharsh/devops_project:jenkins-4 .
-        '''
+        steps {
+            sh '''
+                export PATH=$PATH:/opt/homebrew/bin:/usr/local/bin
+                docker -v
+                docker build -t bhawarharsh/devops_project:jenkins-4 .
+            '''
+        }
     }
 
     stage('Push to DockerHub') {
