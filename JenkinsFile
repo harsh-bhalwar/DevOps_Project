@@ -61,15 +61,26 @@ pipeline {
     }
 
     stage('Deploy (local)') {
-      steps {
-        // Stop existing container if any, remove, run new container mapping host port 80 -> container 3000
-        sh """
-          docker stop devops-demo || true
-          docker rm devops-demo || true
-          docker run -d --name devops-demo -p 80:3000 ${IMAGE_NAME}:${IMAGE_TAG}
-        """
-      }
+    steps {
+        sh '''
+            # Ensure Jenkins can find Docker (Homebrew and default locations)
+            export PATH=$PATH:/opt/homebrew/bin:/usr/local/bin
+
+            echo "🛠️ Checking Docker installation..."
+            docker -v || { echo "❌ Docker not found! Check PATH or permissions."; exit 1; }
+
+            echo "🧹 Stopping and removing any old container..."
+            docker stop devops-demo || true
+            docker rm devops-demo || true
+
+            echo "🚀 Deploying new container..."
+            docker run -d --name devops-demo -p 80:3000 ${IMAGE_NAME}:${IMAGE_TAG}
+
+            echo "✅ Deployment complete! Application running on http://localhost:80"
+        '''
     }
+}
+
   }
 
   post {
