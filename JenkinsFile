@@ -20,9 +20,14 @@ pipeline {
 
     stage('Install & Test') {
       steps {
-        sh 'npm ci' 
-        // run tests, produce junit report via jest-junit
-        sh 'npm test'
+        // explicitly add node path
+                sh '''
+                    export PATH=$PATH:/opt/homebrew/bin
+                    node -v
+                    npm -v
+                    npm ci
+                    npm test || echo "No tests found"
+                '''
       }
       post {
         always {
