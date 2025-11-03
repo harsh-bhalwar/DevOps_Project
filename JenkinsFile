@@ -1,0 +1,74 @@
+pipeline {
+  agent any
+
+  parameters {
+    booleanParam(name: 'PUSH_TO_DOCKERHUB', defaultValue: false, description: 'Push built image to DockerHub?')
+    string(name: 'DOCKERHUB_REPO', defaultValue: 'bhawarharsh/devops_project', description: 'DockerHub repo name (user/repo)')
+  }
+
+  environment {
+    IMAGE_NAME = "${params.DOCKERHUB_REPO}"
+    IMAGE_TAG = "jenkins-${env.BUILD_NUMBER}"
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage('Install & Test') {
+      steps {
+        sh 'npm ci' 
+        // run tests, produce junit report via jest-junit
+        sh 'npm test'
+      }
+      post {
+        always {
+          // publish test results (Jest produced test-results/junit.xml)
+          junit allowEmptyResults: true, testResults: 'test-results/junit.xml'
+        }
+      }
+    }
+
+    stage('Build Docker Image') {
+      steps {
+        sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+      }
+    }
+
+    stage('Push to DockerHub') {
+      when {
+        expression { return params.PUSH_TO_DOCKERHUB == true }
+      }
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
+          sh 'echo $DOCKERHUB_PASS | docker login -u "$DOCKERHUB_USER" --password-stdin'
+          sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+          sh 'docker logout'
+        }
+      }
+    }
+
+    stage('Deploy (local)') {
+      steps {
+        // Stop existing container if any, remove, run new container mapping host port 80 -> container 3000
+        sh """
+          docker stop devops-demo || true
+          docker rm devops-demo || true
+          docker run -d --name devops-demo -p 80:3000 ${IMAGE_NAME}:${IMAGE_TAG}
+        """
+      }
+    }
+  }
+
+  post {
+    success {
+      echo "Pipeline succeeded. App should be reachable at http://localhost (port 80)"
+    }
+    failure {
+      echo "Pipeline failed."
+    }
+  }
+}

@@ -2,9 +2,10 @@
   "name": "devops-project",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index.js",
-    "test": "jest --ci --reporters=default --reporters=jest-junit"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --ci --reporters=default --reporters=jest-junit"
   },
   "jest-junit": {
     "outputName": "junit.xml",
