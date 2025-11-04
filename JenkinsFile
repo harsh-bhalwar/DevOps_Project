@@ -49,31 +49,31 @@ pipeline {
     }
 
     stage('Push to DockerHub') {
-  when {
-    expression { return params.PUSH_TO_DOCKERHUB == true }
-  }
-  steps {
-    withCredentials([usernamePassword(credentialsId: 'docker-pat', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
-      sh '''
-        export PATH=$PATH:/usr/local/bin
+        when {
+            expression { return params.PUSH_TO_DOCKERHUB == true }
+        }
+        steps {
+            withCredentials([usernamePassword(credentialsId: 'docker-pat', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
+            sh '''
+                export PATH=$PATH:/usr/local/bin
 
-        echo "🛠️ Checking Docker installation..."
-        docker -v || { echo "❌ Docker not found! Check PATH or permissions."; exit 1; }
+                echo "🛠️ Checking Docker installation..."
+                docker -v || { echo "❌ Docker not found! Check PATH or permissions."; exit 1; }
 
-        echo "🔐 Logging into DockerHub..."
-        echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
+                echo "🔐 Logging into DockerHub..."
+                echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
 
-        echo "🏗️ Tagging image before push..."
-        docker tag bhawarharsh/devops_project:jenkins-4 ${IMAGE_NAME}:${IMAGE_TAG}
+                echo "🏗️ Tagging image before push..."
+                docker tag bhawarharsh/devops_project:jenkins-4 ${IMAGE_NAME}:${IMAGE_TAG}
 
-        echo "🚀 Pushing image to DockerHub..."
-        docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                echo "🚀 Pushing image to DockerHub..."
+                docker push ${IMAGE_NAME}:${IMAGE_TAG}
 
-        echo "🔒 Logging out of DockerHub..."
-        docker logout
-      '''
-    }
-  }
+                echo "🔒 Logging out of DockerHub..."
+                docker logout
+            '''
+            }
+        }
 }
 
 
