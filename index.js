@@ -66,7 +66,7 @@ app.get('/metrics', (req, res) => {
 
 // Run the server only if executed directly
 if (import.meta.url === `file://${process.argv[1]}`) {
-  app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+  app.listen(PORT, '0.0.0.0', () => console.log(`✅ Server running on port ${PORT}`));
 }
 
 export default app;
