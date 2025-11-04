@@ -1,6 +1,6 @@
 // test/app.test.js
 import request from "supertest";
-import app from "../index.js";
+import app from "../app.js";
 
 describe("GET /", () => {
       it("responds with a welcome message", async () => {
