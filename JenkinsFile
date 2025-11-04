@@ -46,9 +46,11 @@ pipeline {
 
             echo "🐳 Building multi-arch image for linux/amd64 and linux/arm64..."
             docker buildx create --use || true
+
             docker buildx build \
               --platform linux/amd64,linux/arm64 \
               -t bhawarharsh/devops_project:jenkins-4 \
+              --load \
               .
         '''
     }
