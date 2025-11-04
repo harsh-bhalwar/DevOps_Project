@@ -8,7 +8,7 @@ describe("GET /", () => {
             expect(res.statusCode).toBe(200);
             expect(res.body).toHaveProperty(
                   "message",
-                  "Welcome to Harsh Bhalwar’s DevOps Project API"
+                  "Welcome to Harsh Bhalwar’s DevOps Project API, deployed on GCP VM"
             );
             expect(res.body).toHaveProperty("available_endpoints");
             expect(res.body.available_endpoints).toContain("/project");
