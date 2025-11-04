@@ -10,7 +10,7 @@ app.use(express.json());
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({
-    message: 'Welcome to Harsh Bhalwar’s DevOps Project API',
+    message: 'Welcome to Harsh Bhalwar’s DevOps Project API, deployed on GCP VM',
     available_endpoints: ['/project', '/status', '/team', '/metrics']
   });
 });
